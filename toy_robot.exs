@@ -12,7 +12,7 @@ defmodule ToyRobot do
     @y_max 4
     # The directions the robot can face are numbered 0-3 in anticlockwise order.
     # This allows to easily change direction by adding or subtracting, and to easily
-    # add new directions (e.g @north_west 1.5) if we so desired.
+    # add new directions (e.g @north_west 1.5) if we so desire.
     @east 0
     @north 1
     @west 2
@@ -63,21 +63,33 @@ defmodule ToyRobot do
     def rotate(nil, _f), do: nil
 
     @doc """
-    Reads lines of input from the given device (`stdio` by default) and parses them.
+    Print `state` in human readable form. Returns `state` unaltered.
+    """
+    def report({x,y,f}) do
+        f_str = case f do
+            0 -> "east"
+            1 -> "north"
+            2 -> "west"
+            3 -> "south"
+            end
+        IO.puts("Position X:#{x} Y:#{y}, facing "<>f_str)
+        {x,y,f}
+    end
+
+    @doc """
+    Read commands from the given device (`stdio` by default) and action them.
     """
     def read_input(device \\ :stdio) do
         IO.puts("Enter one command per line (Ctrl+D to finish):")
         initial_state = nil
-        end_state = Enum.reduce(IO.stream(device, :line), initial_state, &parse_line/2)
-        IO.puts("final state:")
-        IO.inspect(end_state)
+        Enum.reduce(IO.stream(device, :line), initial_state, &parse_line/2)
     end
 
     @doc """
-    Parses a command and feeds `state` through the appropriate transformation
+    Parse a command and feed `state` through the appropriate transformation.
     """
     def parse_line(string, state) do
-        case string do
+        case String.trim(string) do
             "PLACE"<>args ->
                 [x_str,y_str,f_str] = String.split(args, ~r{\s+}, [trim: true, parts: 4])
                 {x,y} = {String.to_integer(x_str), String.to_integer(y_str)}
@@ -88,11 +100,12 @@ defmodule ToyRobot do
                     "WEST" -> @west
                     end
                 check_state({x,y,f})
-            "LEFT\n" -> rotate(state,1)
-            "RIGHT\n" -> rotate(state,-1)
-            "MOVE\n" -> move(state)
+            "LEFT" -> rotate(state,1)
+            "RIGHT" -> rotate(state,-1)
+            "MOVE" -> move(state)
+            "REPORT" -> report(state)
             _ ->
-                IO.puts("Skipping invalid command: " <> string)
+                IO.puts("Invalid command: " <> string)
                 state
         end
     end
