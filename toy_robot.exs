@@ -10,8 +10,8 @@ defmodule ToyRobot do
     # e.g x_max of 4 creates 5 horizontal squares
     @x_max 4
     @y_max 4
-    # use strings instead of atoms to simplify comparison
-    @directions ["NORTH", "SOUTH", "EAST", "WEST"]
+    # Direction the robot can face
+    @directions [:north, :south, :east, :west]
 
     @doc """
     Given a tuple representing the robot's state, return the same tuple if the state is valid,
@@ -24,5 +24,11 @@ defmodule ToyRobot do
                                 and f in @directions,
                                do: {x, y, f}
     def check_state(_invalid_state), do: nil
+
+    @doc """
+    Alter the given state so that the robot faces the desired direction.
+    """
+    def face({x,y,_f}, direction) when direction in @directions, do: {x,y,direction}
+    def face(_state, _invalid_direction), do: nil
 
 end
