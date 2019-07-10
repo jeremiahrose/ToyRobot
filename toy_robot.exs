@@ -46,7 +46,7 @@ defmodule ToyRobot do
     def move({x,y,@south}) when y>0, do: {x,y-1,@south}
     def move({x,y,@east}) when x<@x_max, do: {x+1,y,@east}
     def move({x,y,@west}) when x>0, do: {x-1,y,@west}
-    def move(state_facing_edge), do: state_facing_edge
+    def move(all_other_states), do: all_other_states
 
     # Alternative move that would also work diagonally.
     #def move({x, y, f}) do
@@ -59,6 +59,45 @@ defmodule ToyRobot do
 
     The rotation parameter must be -1 or 1 for a right or left hand turn respectively.
     """
-    def rotate({x,y,f}, r) when r in [-1,1], do: {x,y,Integer.mod(f+r,4)}    
+    def rotate({x,y,f}, r) when r in [-1,1], do: {x,y,Integer.mod(f+r,4)}
+    def rotate(nil, _f), do: nil
+
+    @doc """
+    Reads lines of input from the given device (`stdio` by default) and parses them.
+    """
+    def read_input(device \\ :stdio) do
+        IO.puts("Enter one command per line (Ctrl+D to finish):")
+        initial_state = nil
+        end_state = Enum.reduce(IO.stream(device, :line), initial_state, &parse_line/2)
+        IO.puts("final state:")
+        IO.inspect(end_state)
+    end
+
+    @doc """
+    Parses a command and feeds `state` through the appropriate transformation
+    """
+    def parse_line(string, state) do
+        case string do
+            "PLACE"<>args ->
+                [x_str,y_str,f_str] = String.split(args, ~r{\s+}, [trim: true, parts: 4])
+                {x,y} = {String.to_integer(x_str), String.to_integer(y_str)}
+                f = case f_str do
+                    "NORTH" -> @north
+                    "SOUTH" -> @south
+                    "EAST" -> @east
+                    "WEST" -> @west
+                    end
+                check_state({x,y,f})
+            "LEFT\n" -> rotate(state,1)
+            "RIGHT\n" -> rotate(state,-1)
+            "MOVE\n" -> move(state)
+            _ ->
+                IO.puts("Skipping invalid command: " <> string)
+                state
+        end
+    end
+            
    
 end
+
+ToyRobot.read_input()
