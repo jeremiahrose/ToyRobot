@@ -31,4 +31,14 @@ defmodule ToyRobot do
     def face({x,y,_f}, direction) when direction in @directions, do: {x,y,direction}
     def face(_state, _invalid_direction), do: nil
 
+    @doc """
+    Alter the given state so that the robot moves one square in the direction it is facing.
+    If the robot is facing the edge of the board, it is not moved
+    """
+    def move({x,y,:north}) when y<@y_max, do: {x,y+1,:north}
+    def move({x,y,:south}) when y>0, do: {x,y-1,:south}
+    def move({x,y,:east}) when x<@x_max, do: {x+1,y,:east}
+    def move({x,y,:west}) when x>0, do: {x-1,y,:west}
+    def move(state_facing_edge), do: state_facing_edge
+
 end

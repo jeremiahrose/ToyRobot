@@ -25,5 +25,13 @@ defmodule ToyRobotTest do
     test "Face invalid direction" do
         assert ToyRobot.face({0,0,:west}, 8768) == nil
     end
+
+    test "Move one square north" do
+        assert ToyRobot.move({0,0,:north}) == {0,1,:north}
+    end
+
+    test "Don't move off edge" do
+        assert ToyRobot.move({0,0,:west}) == {0,0,:west}
+    end
         
 end
