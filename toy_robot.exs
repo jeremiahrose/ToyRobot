@@ -30,7 +30,7 @@ defmodule ToyRobot do
                                 and y in 0..@y_max
                                 and f in @directions,
                                do: {x, y, f}
-    def check_state(_invalid_state), do: nil
+    def check_state(_all_other_states), do: nil
 
     @doc """
     Alter the given state so that the robot faces the desired direction.
@@ -72,9 +72,14 @@ defmodule ToyRobot do
             2 -> "west"
             3 -> "south"
             end
-        IO.puts("Position X:#{x} Y:#{y}, facing "<>f_str)
+        IO.puts("Position X:#{x} Y:#{y}, facing #{f_str}.")
         {x,y,f}
     end
+
+    def report(nil) do
+        IO.puts("Robot not on table.")
+        nil
+    end    
 
     @doc """
     Read commands from the given device (`stdio` by default) and action them.
@@ -89,23 +94,39 @@ defmodule ToyRobot do
     Parse a command and feed `state` through the appropriate transformation.
     """
     def parse_line(string, state) do
+        # trim line for leading / trailing whitespace and newlines
         case String.trim(string) do
             "PLACE"<>args ->
-                [x_str,y_str,f_str] = String.split(args, ~r{\s+}, [trim: true, parts: 4])
-                {x,y} = {String.to_integer(x_str), String.to_integer(y_str)}
-                f = case f_str do
-                    "NORTH" -> @north
-                    "SOUTH" -> @south
-                    "EAST" -> @east
-                    "WEST" -> @west
-                    end
-                check_state({x,y,f})
+                # Check PLACE argument formatting with regex
+                case Regex.named_captures(~r{^\s+(?<x_str>\d+)\s+(?<y_str>\d+)\s+(?<f_str>(NORTH|EAST|SOUTH|WEST))\s*$}, args) do
+                    # Parse matching strings
+                    %{"x_str" => x_str, "y_str" => y_str, "f_str" => f_str} ->
+                        new_state = {String.to_integer(x_str), 
+                                     String.to_integer(y_str),
+                                     case f_str do
+                                         "NORTH" -> @north
+                                         "SOUTH" -> @south
+                                         "EAST"  -> @east
+                                         "WEST"  -> @west
+                                     end
+                                    }
+                        # Check that the desired position is actually on the board
+                        # But don't throw an error if it's not - brief says to "ignore" this case
+                        check_state(new_state) || state
+                    # Warn against incorrect arguments
+                    _no_regex_match -> 
+                        IO.puts("PLACE command: invalid arguments")
+                        state
+                end
             "LEFT" -> rotate(state,1)
             "RIGHT" -> rotate(state,-1)
             "MOVE" -> move(state)
             "REPORT" -> report(state)
-            _ ->
-                IO.puts("Invalid command: " <> string)
+            # Ignore empty input
+            "" -> state
+            # Warn against incorrect commands
+            no_match ->
+                IO.puts("Invalid command: " <> no_match)
                 state
         end
     end
