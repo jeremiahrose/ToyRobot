@@ -1,3 +1,5 @@
+#!/usr/bin/elixir
+
 defmodule ToyRobot do
     @moduledoc """
     Toy Robot simulator.
@@ -67,12 +69,12 @@ defmodule ToyRobot do
     """
     def report({x,y,f}) do
         f_str = case f do
-            0 -> "east"
-            1 -> "north"
-            2 -> "west"
-            3 -> "south"
+            0 -> "EAST"
+            1 -> "NORTH"
+            2 -> "WEST"
+            3 -> "SOUTH"
             end
-        IO.puts("Position X:#{x} Y:#{y}, facing #{f_str}.")
+        IO.puts("#{x},#{y},#{f_str}")
         {x,y,f}
     end
 
@@ -98,7 +100,7 @@ defmodule ToyRobot do
         case String.trim(string) do
             "PLACE"<>args ->
                 # Check PLACE argument formatting with regex
-                case Regex.named_captures(~r{^\s+(?<x_str>\d+)\s+(?<y_str>\d+)\s+(?<f_str>(NORTH|EAST|SOUTH|WEST))\s*$}, args) do
+                case Regex.named_captures(~r{^\s+(?<x_str>\d+),(?<y_str>\d+),(?<f_str>(NORTH|EAST|SOUTH|WEST))\s*$}, args) do
                     # Parse matching strings
                     %{"x_str" => x_str, "y_str" => y_str, "f_str" => f_str} ->
                         new_state = {String.to_integer(x_str), 
