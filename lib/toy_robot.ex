@@ -1,5 +1,3 @@
-#!/usr/bin/elixir
-
 defmodule ToyRobot do
     @moduledoc """
     Toy Robot simulator.
@@ -7,6 +5,12 @@ defmodule ToyRobot do
     This is an Elixir solution to the popular 'Toy Robot' interview question.
     For operating instructions refer to https://github.com/fredwu/toy-robot-elixir
     """
+    
+    use Application
+    def start(_type, _args) do
+        read_input()
+        Supervisor.start_link([], strategy: :one_for_one)
+    end
 
     # Size of board, starting at zero
     # e.g x_max of 4 creates 5 horizontal squares
@@ -135,5 +139,3 @@ defmodule ToyRobot do
             
    
 end
-
-ToyRobot.read_input()

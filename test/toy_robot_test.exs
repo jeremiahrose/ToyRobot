@@ -1,8 +1,3 @@
-Code.load_file("toy_robot.exs")
-
-ExUnit.start()
-ExUnit.configure(trace: true)
-
 defmodule ToyRobotTest do
     use ExUnit.Case
 
