@@ -1,5 +1,6 @@
 defmodule ToyRobotTest do
     use ExUnit.Case
+    import ExUnit.CaptureIO
 
     test "Check valid state" do
         assert ToyRobot.check_state({0,0,1}) == {0,0,1}
@@ -52,5 +53,20 @@ defmodule ToyRobotTest do
     test "MOVE command" do
         assert ToyRobot.parse_line("MOVE\n", {1,1,3}) == {1,0,3}
     end
-        
+
+    test "Multiple commands example a" do
+        assert capture_io([input: "PLACE 0,0,NORTH\nMOVE\nREPORT\n"], &ToyRobot.read_input/0)
+               == "Enter one command per line (Ctrl+D to finish):\n0,1,NORTH\n"
+    end
+
+    test "Multiple commands example b" do
+        assert capture_io([input: "PLACE 0,0,NORTH\nLEFT\nREPORT\n"], &ToyRobot.read_input/0)
+               == "Enter one command per line (Ctrl+D to finish):\n0,0,WEST\n"
+    end
+
+    test "Multiple commands example c" do
+        assert capture_io([input: "PLACE 1,2,EAST\nMOVE\nMOVE\nLEFT\nMOVE\nREPORT\n"], &ToyRobot.read_input/0)
+                == "Enter one command per line (Ctrl+D to finish):\n3,3,NORTH\n"
+    end
+
 end
