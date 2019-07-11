@@ -36,5 +36,21 @@ defmodule ToyRobotTest do
     test "Rotate left" do
         assert ToyRobot.rotate({2,3,1}, 1) == {2,3,2}
     end
+
+    test "Bad command outputs unaltered state" do
+        assert ToyRobot.parse_line("sfasdDFS", {0,0,2}) == {0,0,2}
+    end
+
+    test "Bad PLACE args output unaltered state" do
+        assert ToyRobot.parse_line("PLACE 1 2 north\n", {1,1,1}) == {1,1,1}
+    end
+
+    test "PLACE command" do
+        assert ToyRobot.parse_line("PLACE 0,0,EAST\n", nil) == {0,0,0}
+    end
+
+    test "MOVE command" do
+        assert ToyRobot.parse_line("MOVE\n", {1,1,3}) == {1,0,3}
+    end
         
 end
